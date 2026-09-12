@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from src.util.config import GPT_CONFIG_124M
+
 
 class DummyTransformerBlock(nn.Module):
     def __init__(self, cfg, *args, **kwargs):
@@ -41,3 +43,25 @@ class DummyGPTModel(nn.Module):
         logists = self.out_head(x)
 
         return logists
+
+
+if __name__ == "__main__":
+    import tiktoken
+
+    tokenizer = tiktoken.get_encoding("gpt2")
+    batch = []
+    txt1 = "every effort moves you"
+    txt2 = "every day holds a"
+
+    batch.append(torch.tensor(tokenizer.encode(txt1)))
+    batch.append(torch.tensor(tokenizer.encode(txt2)))
+    batch = torch.stack(batch, dim=0)
+    print(batch)
+
+    torch.manual_seed(123)
+    model = DummyGPTModel(GPT_CONFIG_124M)
+    logists = model(batch)
+    print(logists.shape)
+    print(logists)
+
+    print("done")
