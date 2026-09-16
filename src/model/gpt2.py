@@ -32,3 +32,13 @@ class GPTModel(nn.Module):
         x = self.final_norm(x)
         logits = self.out_head(x)
         return logits
+
+
+if __name__ == "__main__":
+    torch.manual_seed(123)
+    model = GPTModel(GPT_CONFIG_124M)
+
+    batch = torch.tensor([[619, 3626, 6100, 345], [619, 1110, 6622, 257]])
+    out = model(batch)
+    print(out)
+    print("done")
