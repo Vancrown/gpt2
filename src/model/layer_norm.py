@@ -7,7 +7,7 @@ class LayerNorm(nn.Module):
         super().__init__(*args, **kwargs)
         self.eps = 1e-5
         self.scale = nn.Parameter(torch.ones(emb_dim))
-        self.shift = nn.Parameter(torch.ones(emb_dim))
+        self.shift = nn.Parameter(torch.zeros(emb_dim))
 
     def forward(self, x):
         mean = x.mean(dim=-1, keepdim=True)

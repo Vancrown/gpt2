@@ -9,7 +9,7 @@ from src.util.token_parser import (
     generate_text_simple,
 )
 
-device = "cpu"
+device = "mps"
 
 
 def calc_loss_batch(input_batch, target_batch, model, device):
@@ -34,7 +34,7 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
 
     for i, (input_batch, target_batch) in enumerate(data_loader):
         if i < num_batches:
-            loss = calc_loss_batch(input_batch, target_batch)
+            loss = calc_loss_batch(input_batch, target_batch, model, device)
             total_loss += loss
         else:
             break
@@ -123,6 +123,8 @@ split_idx = int(train_ratio * len(text_data))
 train_data = text_data[:split_idx]
 val_data = text_data[split_idx:]
 
+print("train:", len(train_data), "val data", len(val_data))
+
 torch.manual_seed(123)
 train_loader = create_dataloader_v1(
     train_data,
@@ -150,5 +152,20 @@ with torch.no_grad():
     train_loss = calc_loss_loader(train_loader, model, device)
     val_loss = calc_loss_loader(val_loader, model, device)
 
-print("train loss:", train_loss)
-print("val loss:", val_loss)
+print("train loss:", train_loss, "val loss:", val_loss)
+
+optimizer = torch.optim.AdamW(model.parameters(), lr=4e-4, weight_decay=0.1)
+
+num_epochs = 10
+train_losses, val_losses, tokens_seen = train_model_simple(
+    model,
+    train_loader,
+    val_loader,
+    optimizer,
+    device,
+    num_epochs,
+    eval_freq=5,
+    eval_iter=5,
+    start_context="Every effort moves you",
+    tokenizer=tokenizer,
+)
