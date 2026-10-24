@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import tiktoken
 from src.preprocess.dataset import create_dataloader_v1
 from src.model.gpt2 import GPTModel
@@ -47,8 +48,10 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     with torch.no_grad():
         train_loss = calc_loss_loader(
             train_loader, model, device, num_batches=eval_iter
-        )
-        val_loss = calc_loss_loader(val_loader, model, device, num_batches=eval_iter)
+        ).item()
+        val_loss = calc_loss_loader(
+            val_loader, model, device, num_batches=eval_iter
+        ).item()
 
     model.train()
     return train_loss, val_loss
@@ -169,3 +172,10 @@ train_losses, val_losses, tokens_seen = train_model_simple(
     start_context="Every effort moves you",
     tokenizer=tokenizer,
 )
+
+
+from src.util.vis import plot_losses
+
+x = np.linspace(0, num_epochs, len(train_losses))
+
+plot_losses(x, tokens_seen, train_losses, val_losses)
